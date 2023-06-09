@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import axios from 'axios';
 import EthCrypto from 'eth-crypto';
+import { compressAndEncode } from './utils/compressor';
 
 const app = express();
 app.use(cors());
@@ -24,8 +25,11 @@ app.post('/superapi', async (req: Request, res: Response) => {
         JSON.stringify(encryptedDataUser)
     );
 
+    // compress and encode the data
+    const compressedData = await compressAndEncode(JSON.stringify(encryptedDataReceiver));
+
     // Respond with the doubly-encrypted data
-    res.json({ data: JSON.stringify(encryptedDataReceiver)});
+    res.json({ data: compressedData });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'An error occurred while processing the request.' });

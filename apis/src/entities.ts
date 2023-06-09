@@ -30,6 +30,7 @@ const universityData = {
 };
 
 async function handleRequest(req: Request, res: Response, dataObject: any) {
+  console.log('Received request.')
     const address = req.params.address;
     const originalData = dataObject[address];
 
@@ -37,9 +38,10 @@ async function handleRequest(req: Request, res: Response, dataObject: any) {
     const dataString = JSON.stringify(originalData);
 
     try {
+      console.log('Signing data.', dataString)
         // Sign the data
         const signedData = await wallet.signMessage(dataString);
-    
+        console.log('Data signed.', signedData)
         res.json({
             message: dataString,
             signature: signedData
