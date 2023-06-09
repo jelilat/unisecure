@@ -56,6 +56,4 @@ app.get('/hospital/:address', (req: Request, res: Response) => handleRequest(req
 app.get('/bank/:address', (req: Request, res: Response) => handleRequest(req, res, bankData));
 app.get('/university/:address', (req: Request, res: Response) => handleRequest(req, res, universityData));
 
-app.listen(3002, () => {
-  console.log('Server running on port 3002');
-});
+export default app;
