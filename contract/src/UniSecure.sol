@@ -84,9 +84,9 @@ contract UniSecure is ChainlinkClient, ConfirmedOwner {
 
     function requestData(
         address sender, 
+        address receiver,
         uint256 endpointId,
-        string memory userPubKey,
-        string memory receiverPubKey
+        string memory userPubKey
         ) public returns (bytes32 requestId) {
         // Create a Chainlink.Request object
         Chainlink.Request memory request = buildChainlinkRequest(
@@ -102,18 +102,11 @@ contract UniSecure is ChainlinkClient, ConfirmedOwner {
         request.add("path", "data");
         request.add("user", addressToString(msg.sender));
         request.add("userPubKey", userPubKey);
-        request.add("receiverPubKey", receiverPubKey);
+        request.add("receiverPubKey", entities[receiver].publicKey);
         request.add("endpointUrl", endpoint);
         
         return sendChainlinkRequest(request, fee);
     }
-
-
-    // function requestData(string memory userpubKey, address sender, 
-    // uint256 endpointId, address receiver) public returns (string memory) {
-    //     string memory price = executeRequest();
-    //     return price;
-    // }
 
     /**
      * @notice Receives the response in the form of string
@@ -128,7 +121,10 @@ contract UniSecure is ChainlinkClient, ConfirmedOwner {
         recordChainlinkFulfillment(_requestId)
     {
         requestsByRecipient[_dataReceiver].push(DataRequest(_dataSender, msg.sender, _data));
+    }
 
+    function getRequestsByRecipient(address _recipient) external view returns (DataRequest[] memory) {
+        return requestsByRecipient[_recipient];
     }
 
     /**

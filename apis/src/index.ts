@@ -10,8 +10,8 @@ entities.listen(PORT_ENTITIES, () => {
     console.log(`Error occurred while starting the Entities server: ${err}`);
 });
 
-super_api.listen(PORT_SUPER_API, () => {
-    console.log(`Super API server running on port ${PORT_SUPER_API}`);
-}).on('error', (err) => {
-    console.log(`Error occurred while starting the Super API server: ${err}`);
-});
+// super_api.listen(PORT_SUPER_API, () => {
+//     console.log(`Super API server running on port ${PORT_SUPER_API}`);
+// }).on('error', (err) => {
+//     console.log(`Error occurred while starting the Super API server: ${err}`);
+// });
