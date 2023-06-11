@@ -36,4 +36,9 @@ app.post('/superapi', async (req: Request, res: Response) => {
   }
 });
 
-export default app;
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Super API server running on port ${PORT}`);
+}).on('error', (err) => {
+  console.log(`Error occurred while starting the Super API server: ${err}`);
+});

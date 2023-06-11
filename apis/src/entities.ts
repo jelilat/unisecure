@@ -30,7 +30,6 @@ const universityData = {
 };
 
 async function handleRequest(req: Request, res: Response, dataObject: any) {
-  console.log('Received request.')
     const address = req.params.address;
     const originalData = dataObject[address];
 
@@ -38,10 +37,8 @@ async function handleRequest(req: Request, res: Response, dataObject: any) {
     const dataString = JSON.stringify(originalData);
 
     try {
-      console.log('Signing data.', dataString)
         // Sign the data
         const signedData = await wallet.signMessage(dataString);
-        console.log('Data signed.', signedData)
         res.json({
             message: dataString,
             signature: signedData
@@ -56,4 +53,9 @@ app.get('/hospital/:address', (req: Request, res: Response) => handleRequest(req
 app.get('/bank/:address', (req: Request, res: Response) => handleRequest(req, res, bankData));
 app.get('/university/:address', (req: Request, res: Response) => handleRequest(req, res, universityData));
 
-export default app;
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`API server running on port ${PORT}`);
+}).on('error', (err) => {
+  console.log(`Error occurred while starting the API server: ${err}`);
+})

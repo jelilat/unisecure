@@ -5,12 +5,14 @@
   "main": "src/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "run": "npx ts-node src/index.ts",
-    "start": "npm run build && node ./dist/index.js",
+    "run:entities": "npx ts-node src/entities.ts",
+    "start:entities": "npm run build && node ./dist/entities.js",
+    "run:super_api": "npx ts-node src/super_api.ts",
+    "start:super_api": "npm run build && node ./dist/super_api.js",
     "build": "npx tsc"
   },
   "keywords": [],
-  "author": "",
+  "author": "jelilat",
   "license": "ISC",
   "dependencies": {
     "@types/elliptic": "^6.4.14",
