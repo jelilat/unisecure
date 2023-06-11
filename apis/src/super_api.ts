@@ -13,7 +13,7 @@ app.post('/superapi', async (req: Request, res: Response) => {
 
   try {
     // Call the appropriate API and get the data
-    const response = await axios.get(apiEndpoint, { params: { address } });
+    const response = await axios.get(apiEndpoint+`/${address}`, { params: { address } });
     const data = response.data;
 
     const encryptedDataUser = await EthCrypto.encryptWithPublicKey(
