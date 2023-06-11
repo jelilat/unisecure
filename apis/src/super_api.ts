@@ -39,6 +39,41 @@ app.post('/superapi', async (req: Request, res: Response) => {
   }
 });
 
+app.get('/superapi', async (req, res) => {
+  const address = req.query.address;
+  const userPublicKey = req.query.userPublicKey;
+  const receiverPublicKey = req.query.receiverPublicKey;
+  const apiEndpoint = req.query.apiEndpoint;
+  
+  console.log(address, userPublicKey, receiverPublicKey, apiEndpoint);
+
+  try {
+    // Call the appropriate API and get the data
+    const response = await axios.get(`${apiEndpoint}/${address}`);
+    const data = response.data;
+    console.log(data);
+
+    const encryptedDataUser = await EthCrypto.encryptWithPublicKey(
+      userPublicKey as string,
+      JSON.stringify(data)
+    );
+    const encryptedDataReceiver = await EthCrypto.encryptWithPublicKey(
+      receiverPublicKey as string,
+      JSON.stringify(encryptedDataUser)
+    );
+
+    // compress and encode the data
+    const compressedData = await compressAndEncode(JSON.stringify(encryptedDataReceiver));
+    console.log(compressedData);
+
+    // Respond with the doubly-encrypted data
+    res.json({ data: compressedData });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while processing the request.' });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Super API server running on port ${PORT}`);
