@@ -10,11 +10,13 @@ app.use(express.json());
 
 app.post('/superapi', async (req: Request, res: Response) => {
   const { address, userPublicKey, receiverPublicKey, apiEndpoint } = req.body;
+  console.log(address, userPublicKey, receiverPublicKey, apiEndpoint);
 
   try {
     // Call the appropriate API and get the data
     const response = await axios.get(apiEndpoint+`/${address}`, { params: { address } });
     const data = response.data;
+    console.log(data);
 
     const encryptedDataUser = await EthCrypto.encryptWithPublicKey(
         userPublicKey,
@@ -27,6 +29,7 @@ app.post('/superapi', async (req: Request, res: Response) => {
 
     // compress and encode the data
     const compressedData = await compressAndEncode(JSON.stringify(encryptedDataReceiver));
+    console.log(compressedData);
 
     // Respond with the doubly-encrypted data
     res.json({ data: compressedData });
