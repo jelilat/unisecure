@@ -27,6 +27,9 @@ contract UniSecure is ChainlinkClient, ConfirmedOwner {
     mapping (address => Entity) public entities;
     bytes32 private jobId;
     uint256 private fee;
+    string public superApi;
+
+    event DataFullfilled(string data);
 
     /**
      * @notice Initialize the link token and target oracle
@@ -42,6 +45,7 @@ contract UniSecure is ChainlinkClient, ConfirmedOwner {
         setChainlinkOracle(0x6090149792dAAeE9D1D568c9f9a6F6B46AA29eFD);
         jobId = "7d80a6386ef543a3abb52817f6707e3b";
         fee = (1 * LINK_DIVISIBILITY) / 10; // 0,1 * 10**18 (Varies by network and job)
+        superApi = "https://super-api-production.up.railway.app/superapi?address=";
     }
 
     /**
@@ -96,14 +100,19 @@ contract UniSecure is ChainlinkClient, ConfirmedOwner {
         );
         
         string memory endpoint = (entities[sender].endpoints)[endpointId];
-        // Set the request parameters
-        request.add("get", endpoint);
+        
+        // Construct url
+        string memory url = string(abi.encodePacked(
+            superApi, addressToString(msg.sender),
+            "&senderAddress=", addressToString(sender),
+            "&recipientAddress=", addressToString(receiver),
+            "&userPublicKey=", userPubKey,
+            "&receiverPublicKey=", entities[receiver].publicKey,
+            "&apiEndpoint=", endpoint
+        ));
 
-        request.add("path", "data");
-        request.add("user", addressToString(msg.sender));
-        request.add("userPubKey", userPubKey);
-        request.add("receiverPubKey", entities[receiver].publicKey);
-        request.add("endpointUrl", endpoint);
+        // Set the URL to perform the GET request on
+        request.add("get", url);
         
         return sendChainlinkRequest(request, fee);
     }
@@ -113,14 +122,19 @@ contract UniSecure is ChainlinkClient, ConfirmedOwner {
      *
      * @param _requestId - id of the request
      * @param _data - response data
-     * @param _dataSender - address of the sender entity
-     * @param _dataReceiver - address of the receiver entity
      */
-    function fulfill(bytes32 _requestId, string memory _data, address _dataSender, address _dataReceiver)
+    function fulfill(bytes32 _requestId, bytes memory _data)
         public
         recordChainlinkFulfillment(_requestId)
     {
-        requestsByRecipient[_dataReceiver].push(DataRequest(_dataSender, msg.sender, _data));
+        emit DataFullfilled(string(abi.encodePacked(_data)));
+    }
+
+    function updateRequestsByRecipient(
+        address _recipient, address dataSender, address user, string memory data
+        ) external onlyOwner {
+        DataRequest memory dataRequest = DataRequest(dataSender, user, data);
+        requestsByRecipient[_recipient].push(dataRequest);
     }
 
     function getRequestsByRecipient(address _recipient) external view returns (DataRequest[] memory) {
@@ -128,7 +142,7 @@ contract UniSecure is ChainlinkClient, ConfirmedOwner {
     }
 
     /**
-     * Allow withdraw of Link tokens from the contract
+     * Allow withdrawal of Link tokens from the contract
      */
     function withdrawLink() public onlyOwner {
         LinkTokenInterface link = LinkTokenInterface(chainlinkTokenAddress());
@@ -136,5 +150,9 @@ contract UniSecure is ChainlinkClient, ConfirmedOwner {
             link.transfer(msg.sender, link.balanceOf(address(this))),
             "Unable to transfer"
         );
+    }
+
+    function updateSuperApi(string calldata _superApi) external onlyOwner {
+        superApi = _superApi;
     }
 }
