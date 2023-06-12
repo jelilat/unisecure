@@ -57,8 +57,11 @@ app.get('/bank/:address', (req: Request, res: Response) => handleRequest(req, re
 app.get('/university/:address', (req: Request, res: Response) => handleRequest(req, res, universityData));
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`API server running on port ${PORT}`);
-}).on('error', (err) => {
+app.listen({
+  port: PORT, 
+  host: '0.0.0.0', 
+  callback: () => {
+  console.log(`Super API server running on port ${PORT}`);
+}}).on('error', (err) => {
   console.log(`Error occurred while starting the API server: ${err}`);
 })
